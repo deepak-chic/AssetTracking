@@ -1,0 +1,59 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+- develop
+- feature/*
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  sourceDirectory: '$(Build.SourcesDirectory)'
+  
+steps:
+- checkout: self
+  fetchDepth: 0
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'restore'
+    projects: '$(sourceDirectory)/*.sln'
+    feedsToUse: 'select'
+  displayName: 'Restore The Solution'
+- task: SonarCloudPrepare@1
+  inputs:
+    SonarCloud: 'SonarCloud'
+    organization: 'iotsetupcoe'
+    scannerMode: 'MSBuild'
+    projectKey: 'iotsetupcoe_assettracking'
+    projectName: 'AssetTracking'
+  displayName: 'Prepare Code Analysis'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+    projects: '$(sourceDirectory)/*.sln'
+    arguments: '--configuration Release'
+  displayName: 'Build The Solution'
+- task: SonarCloudAnalyze@1
+  inputs:
+    jdkversion: 'JAVA_HOME_17_X64'
+  displayName: 'Run Code Analysis'
+- task: SonarCloudPublish@1
+  inputs:
+    pollingTimeoutSec: '300'
+  displayName: 'Collect Analysis Result'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'publish'
+    projects: '$(sourceDirectory)/*.sln'
+    publishWebProjects: false
+    arguments: '--configuration Release --output ./publish_out'
+    zipAfterPublish: false
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: './publish_out'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
