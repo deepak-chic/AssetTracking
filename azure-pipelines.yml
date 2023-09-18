@@ -41,15 +41,16 @@ steps:
   inputs:
     command: 'test'
     projects: '$(sourceDirectory)/AssetTracking.Test/*.csproj'
-    arguments: '--configuration Release'
+    arguments: '--configuration Release --logger trx --results-directory "$(sourceDirectory)/TestResults/Coverage/"'
     testRunTitle: 'Run Unit Test Cases'
+    publishTestResults: false
   displayName: 'Running Unit Test Cases'
 - task: PublishTestResults@2
   displayName: "Publish Unit tests results"
   inputs:
     testResultsFormat: 'VSTest'
     testResultsFiles: '**/*.trx'
-    searchFolder: '$(Agent.TempDirectory)'
+    searchFolder: '$(sourceDirectory)/TestResults/Coverage/'
     mergeTestResults: true
     failTaskOnFailedTests: true
 - task: SonarCloudAnalyze@1
