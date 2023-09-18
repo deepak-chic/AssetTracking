@@ -41,8 +41,9 @@ steps:
   inputs:
     command: 'test'
     projects: '$(sourceDirectory)/AssetTracking.Test/*.csproj'
-    arguments: '--configuration Release --logger trx --results-directory $(Agent.TempDirectory) --collect "Code Coverage"'
+    arguments: '--configuration Release'
     testRunTitle: 'Run Unit Test Cases'
+  displayName: 'Running Unit Test Cases'
 - task: PublishTestResults@2
   displayName: "Publish Unit tests results"
   inputs:
