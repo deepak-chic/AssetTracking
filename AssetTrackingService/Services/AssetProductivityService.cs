@@ -20,12 +20,12 @@ namespace AssetTrackingService.Services
             _mapper = mapper;
         }
 
-        public async Task<int> AddProductivityAsync(AssetProdInsertDto insertDto)
+        public async Task<Guid> AddProductivityAsync(AssetProdInsertDto insertDto)
         {
             var entity = _mapper.Map<AssetProductivity>(insertDto);
             entity.id = Guid.NewGuid();
-            await _assetProductivityRepo.AddAsync(entity, new ServiceContext());
-            return 0;
+            var response = await _assetProductivityRepo.AddAsync(entity, new ServiceContext());
+            return response.id;
         }
 
         public async Task<List<AssetProdReadDto>> GetProductivityAsync()

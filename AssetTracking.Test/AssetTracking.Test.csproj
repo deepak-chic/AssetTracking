@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+	<Import Project="..\Tests.With.xUnit.props" />
+	<ItemGroup>
+	  <ProjectReference Include="..\AssetTrackingService\AssetTrackingService.csproj" />
+	</ItemGroup>
+
+</Project>
