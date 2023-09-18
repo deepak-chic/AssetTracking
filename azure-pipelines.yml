@@ -37,6 +37,20 @@ steps:
     projects: '$(sourceDirectory)/*.sln'
     arguments: '--configuration Release'
   displayName: 'Build The Solution'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'test'
+    projects: '$(sourceDirectory)/AssetTracking.Test/*.csproj'
+    arguments: '--configuration Release --logger trx --results-directory $(Agent.TempDirectory) --collect "Code Coverage"'
+    testRunTitle: 'Run Unit Test Cases'
+- task: PublishTestResults@2
+  displayName: "Publish Unit tests results"
+  inputs:
+    testResultsFormat: 'VSTest'
+    testResultsFiles: '**/*.trx'
+    searchFolder: '$(Agent.TempDirectory)'
+    mergeTestResults: true
+    failTaskOnFailedTests: true
 - task: SonarCloudAnalyze@1
   inputs:
     jdkversion: 'JAVA_HOME_17_X64'
