@@ -25,7 +25,7 @@ steps:
   displayName: 'Restore The Solution'
 - task: SonarCloudPrepare@1
   inputs:
-    SonarCloud: 'SonarCloud'
+    SonarCloud: 'SonarCloud-AssetTracking'
     organization: 'iotsetupcoe'
     scannerMode: 'MSBuild'
     projectKey: 'iotsetupcoe_assettracking'
