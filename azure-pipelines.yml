@@ -82,14 +82,16 @@ steps:
 - task: NuGetCommand@2
   inputs:
     command: 'pack'
-    packagesToPack: '$(sourceDirectory)/AssetTrackingService/*.csproj'
+    packagesToPack: '$(sourceDirectory)/IoTPlatformLibrary/*.csproj'
     versioningScheme: 'off'
+  displayName: 'Pack the Nuget'
 - task: NuGetCommand@2
   inputs:
     command: 'push'
     packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
     nuGetFeedType: 'internal'
     publishVstsFeed: '61240ea4-781b-4d13-89a6-a5bb2cdc4d9e/76d15bfc-dd4e-4a8e-9c8b-8987932dc847'
+  displayName: 'Push the Nuget'
 - task: DotNetCoreCLI@2
   inputs:
     command: 'publish'
