@@ -3,6 +3,8 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
+name: $(majorMinorVersion).$(semanticVersion) # $(rev:r) # NOTE: rev resets when the default retention period expires
+
 trigger:
 - main
 - develop
@@ -13,6 +15,8 @@ pool:
 
 variables:
   sourceDirectory: '$(Build.SourcesDirectory)'
+  majorMinorVersion: 1.0
+  semanticVersion: $[counter(variables['majorMinorVersion'], 0)]
   
 steps:
 - checkout: self
@@ -59,13 +63,11 @@ steps:
     command: custom
     custom: tool
     arguments: 'install -g dotnet-reportgenerator-globaltool'
-
 - task: PowerShell@2
   displayName: 'Create Code Coverage Report'
   inputs:
     targetType: 'inline'
     script: reportgenerator -reports:$(Build.SourcesDirectory)/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage -reporttypes:HtmlInline_AzurePipelines
-
 - task: PublishCodeCoverageResults@1
   displayName: 'Publish Code Coverage Report'
   inputs:
@@ -80,13 +82,15 @@ steps:
     pollingTimeoutSec: '300'
   displayName: 'Collect Analysis Result'
 - task: NuGetCommand@2
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/develop')
   inputs:
     command: 'pack'
     packagesToPack: '$(sourceDirectory)/IoTPlatformLibrary/*.csproj'
     configuration: 'Release'
-    versioningScheme: 'off'
+    versioningScheme: 'byBuildNumber'
   displayName: 'Pack The Nuget'
 - task: NuGetCommand@2
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/develop')
   inputs:
     command: 'push'
     packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
