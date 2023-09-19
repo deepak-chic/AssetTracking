@@ -83,8 +83,8 @@ steps:
   inputs:
     command: 'pack'
     packagesToPack: '$(sourceDirectory)/IoTPlatformLibrary/*.csproj'
+    configuration: 'Release'
     versioningScheme: 'off'
-  displayName: 'Pack the Nuget'
 - task: NuGetCommand@2
   inputs:
     command: 'push'
