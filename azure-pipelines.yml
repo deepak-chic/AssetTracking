@@ -41,16 +41,36 @@ steps:
   inputs:
     command: 'test'
     projects: '$(sourceDirectory)/AssetTracking.Test/*.csproj'
-    arguments: '--configuration Release --logger trx --results-directory $(Agent.TempDirectory) --collect "Code Coverage"'
+    arguments: '--configuration Release --logger trx --results-directory "$(sourceDirectory)/TestResults/Coverage/" --collect "XPlat Code Coverage"'
     testRunTitle: 'Run Unit Test Cases'
+    publishTestResults: false
+  displayName: 'Running Unit Test Cases'
 - task: PublishTestResults@2
   displayName: "Publish Unit tests results"
   inputs:
     testResultsFormat: 'VSTest'
     testResultsFiles: '**/*.trx'
-    searchFolder: '$(Agent.TempDirectory)'
+    searchFolder: '$(sourceDirectory)/TestResults/Coverage/'
     mergeTestResults: true
     failTaskOnFailedTests: true
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet Tool Install "reportgenerator"'
+  inputs:
+    command: custom
+    custom: tool
+    arguments: 'install -g dotnet-reportgenerator-globaltool'
+
+- task: PowerShell@2
+  displayName: 'Create Code Coverage Report'
+  inputs:
+    targetType: 'inline'
+    script: reportgenerator -reports:$(Build.SourcesDirectory)/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage -reporttypes:HtmlInline_AzurePipelines
+
+- task: PublishCodeCoverageResults@1
+  displayName: 'Publish Code Coverage Report'
+  inputs:
+    codeCoverageTool: 'cobertura'
+    summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
 - task: SonarCloudAnalyze@1
   inputs:
     jdkversion: 'JAVA_HOME_17_X64'
@@ -59,6 +79,19 @@ steps:
   inputs:
     pollingTimeoutSec: '300'
   displayName: 'Collect Analysis Result'
+- task: NuGetCommand@2
+  inputs:
+    command: 'pack'
+    packagesToPack: '$(sourceDirectory)/IoTPlatformLibrary/*.csproj'
+    versioningScheme: 'off'
+  displayName: 'Pack the Nuget'
+- task: NuGetCommand@2
+  inputs:
+    command: 'push'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+    nuGetFeedType: 'internal'
+    publishVstsFeed: '61240ea4-781b-4d13-89a6-a5bb2cdc4d9e/76d15bfc-dd4e-4a8e-9c8b-8987932dc847'
+  displayName: 'Push the Nuget'
 - task: DotNetCoreCLI@2
   inputs:
     command: 'publish'
