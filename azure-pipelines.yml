@@ -3,6 +3,8 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
+name: $(majorMinorVersion).$(semanticVersion) # $(rev:r) # NOTE: rev resets when the default retention period expires
+
 trigger:
 - main
 - develop
@@ -13,6 +15,8 @@ pool:
 
 variables:
   sourceDirectory: '$(Build.SourcesDirectory)'
+  majorMinorVersion: 1.0
+  semanticVersion: $[counter(variables['majorMinorVersion'], 0)]
   
 steps:
 - checkout: self
