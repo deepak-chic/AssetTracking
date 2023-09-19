@@ -85,13 +85,14 @@ steps:
     packagesToPack: '$(sourceDirectory)/IoTPlatformLibrary/*.csproj'
     configuration: 'Release'
     versioningScheme: 'off'
+  displayName: 'Pack The Nuget'
 - task: NuGetCommand@2
   inputs:
     command: 'push'
     packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
     nuGetFeedType: 'internal'
     publishVstsFeed: '61240ea4-781b-4d13-89a6-a5bb2cdc4d9e/76d15bfc-dd4e-4a8e-9c8b-8987932dc847'
-  displayName: 'Push the Nuget'
+  displayName: 'Push The Nuget'
 - task: DotNetCoreCLI@2
   inputs:
     command: 'publish'
@@ -99,6 +100,7 @@ steps:
     publishWebProjects: false
     arguments: '--configuration Release --output ./publish_out'
     zipAfterPublish: false
+  displayName: 'Publish The Artifact'
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: './publish_out'
