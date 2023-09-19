@@ -59,13 +59,11 @@ steps:
     command: custom
     custom: tool
     arguments: 'install -g dotnet-reportgenerator-globaltool'
-
 - task: PowerShell@2
   displayName: 'Create Code Coverage Report'
   inputs:
     targetType: 'inline'
     script: reportgenerator -reports:$(Build.SourcesDirectory)/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/CodeCoverage -reporttypes:HtmlInline_AzurePipelines
-
 - task: PublishCodeCoverageResults@1
   displayName: 'Publish Code Coverage Report'
   inputs:
@@ -80,6 +78,7 @@ steps:
     pollingTimeoutSec: '300'
   displayName: 'Collect Analysis Result'
 - task: NuGetCommand@2
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/develop')
   inputs:
     command: 'pack'
     packagesToPack: '$(sourceDirectory)/IoTPlatformLibrary/*.csproj'
@@ -87,6 +86,7 @@ steps:
     versioningScheme: 'byBuildNumber'
   displayName: 'Pack The Nuget'
 - task: NuGetCommand@2
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/develop')
   inputs:
     command: 'push'
     packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
